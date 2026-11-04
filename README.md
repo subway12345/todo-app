@@ -5,7 +5,7 @@
 ## Features
 - Add, edit, and delete tasks
 - Mark tasks complete or pending with a checkbox
-- Task status (Pending, In Progress, Completed, Cancelled) and priority (Minor, Normal, Critical)
+- Task status (Pending, Completed) and priority (High, Medium, Low)
 - Live search that filters tasks, with friendly messages for empty and no-match searches
 - Sidebar summary with totals, completion rate, and a progress bar
 - Greeting that changes with the time of day

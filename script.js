@@ -20,23 +20,21 @@ let searchTerm = "";    // the current search text, in lowercase
 // Labels and colors for status and priority
 const STATUS_STYLES = {
   pending:   { label: "Pending",     cls: "bg-yellow-100 text-yellow-700" },
-  progress:  { label: "In Progress", cls: "bg-blue-100 text-blue-700" },
-  completed: { label: "Completed",   cls: "bg-green-100 text-green-700" },
-  cancelled: { label: "Cancelled",   cls: "bg-red-100 text-red-700" }
+  completed: { label: "Completed",   cls: "bg-green-100 text-green-700" }
 };
 
 const PRIORITY_STYLES = {
-  minor:    { label: "Minor",    cls: "text-green-600" },
-  normal:   { label: "Normal",   cls: "text-yellow-600" },
-  critical: { label: "Critical", cls: "text-red-600" }
+  high:   { label: "High",   cls: "text-red-600" },
+  medium: { label: "Medium", cls: "text-yellow-600" },
+  low:    { label: "Low",    cls: "text-green-600" }
 };
 
 // ---------- 3. Starter tasks (used only on the first visit) ----------
 function starterTasks() {
   return [
-    { id: 1, title: "Cooking stew", status: "progress", priority: "normal", completed: false },
-    { id: 2, title: "Reply to emails", status: "pending", priority: "minor", completed: false },
-    { id: 3, title: "Submit project", status: "completed", priority: "critical", completed: true }
+    { id: 1, title: "Cooking stew", status: "pending", priority: "medium", completed: false },
+    { id: 2, title: "Reply to emails", status: "pending", priority: "low", completed: false },
+    { id: 3, title: "Submit project", status: "completed", priority: "high", completed: true }
   ];
 }
 
@@ -48,6 +46,25 @@ function loadTasks() {
   } catch (error) {
     tasks = starterTasks();   // corrupt data: start fresh
   }
+
+  // Normalize legacy status and priority values from previous storage
+  tasks = tasks.map(task => {
+    let priority = task.priority;
+    if (priority === "critical") priority = "high";
+    else if (priority === "normal") priority = "medium";
+    else if (priority === "minor") priority = "low";
+    if (!PRIORITY_STYLES[priority]) priority = "medium";
+
+    let status = task.status;
+    if (status === "progress" || status === "cancelled") {
+      status = task.completed ? "completed" : "pending";
+    }
+    if (!STATUS_STYLES[status]) {
+      status = task.completed ? "completed" : "pending";
+    }
+
+    return { ...task, priority, status };
+  });
 }
 
 function saveTasks() {
@@ -104,7 +121,7 @@ function createTaskCard(task) {
   meta.className = "flex flex-wrap items-center gap-2 mt-2";
 
   const statusStyle = STATUS_STYLES[task.status] || STATUS_STYLES.pending;
-  const priorityStyle = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.normal;
+  const priorityStyle = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.medium;
 
   meta.appendChild(createBadge(statusStyle.label, statusStyle.cls));
   const priorityText = document.createElement("span");
